@@ -7,7 +7,7 @@ import { DateTimeTypeDefinition, DateTimeResolver, JSONDefinition, JSONResolver 
 import { ApolloServer } from "@apollo/server"
 import { NextRequest } from "next/server"
 import { context, Context } from "./context"
-import resolvers from "@/handlers/index"
+import resolvers from "@/resolvers/index"
 
 const schema = mergeSchemas({
   typeDefs: mergeTypeDefs([
