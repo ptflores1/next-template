@@ -1,9 +1,12 @@
+import { Context } from "src/app/api/graphql/context"
+
 const resolvers = {
   Query: {
-    test() {
-      return { text: "string" }
+    async test(_, __, { prisma }: Context) {
+      const user = await prisma.user.findFirst()
+      return { text: user.name }
     },
   },
 }
 
-module.exports = resolvers
+export default resolvers

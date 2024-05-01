@@ -3,10 +3,11 @@ import { loadFilesSync } from "@graphql-tools/load-files"
 import { startServerAndCreateNextHandler } from "@as-integrations/next"
 import { mergeResolvers, mergeTypeDefs } from "@graphql-tools/merge"
 import { mergeSchemas } from "@graphql-tools/schema"
-import { IResolvers } from "@graphql-tools/utils"
 import { DateTimeTypeDefinition, DateTimeResolver, JSONDefinition, JSONResolver } from "graphql-scalars"
 import { ApolloServer } from "@apollo/server"
 import { NextRequest } from "next/server"
+import { context, Context } from "./context"
+import resolvers from "@/handlers/index"
 
 const schema = mergeSchemas({
   typeDefs: mergeTypeDefs([
@@ -14,17 +15,13 @@ const schema = mergeSchemas({
     JSONDefinition,
     ...loadFilesSync(path.join(process.cwd(), "./src/graphql/server/**/*.graphql")),
   ]),
-  resolvers: mergeResolvers([
-    { DateTime: DateTimeResolver },
-    { JSON: JSONResolver },
-    ...loadFilesSync<IResolvers>(path.join(process.cwd(), "./src/handlers/**/*.resolvers.ts")),
-  ]),
+  resolvers: mergeResolvers([{ DateTime: DateTimeResolver }, { JSON: JSONResolver }, resolvers]),
 })
 
-const server = new ApolloServer({ schema })
+const server = new ApolloServer<Context>({ schema })
 
-const handler = startServerAndCreateNextHandler<NextRequest>(server, {
-  context: async (req) => ({ req }),
+const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, {
+  context,
 })
 
 export { handler as GET, handler as POST }
